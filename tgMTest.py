@@ -1,14 +1,12 @@
 import sys
 import json
-from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, 
-                             QPushButton, QLineEdit, QDialog, QMessageBox, QHeaderView, QStackedWidget)
+from PyQt6 import QtWidgets, QtGui
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QPushButton, QLineEdit, QDialog, QMessageBox, QHeaderView, QStackedWidget, QMenuBar, QMenu
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import SendMessageRequest      
 import asyncio
-
 # Файл для хранения данных аккаунтов
 DATA_FILE = 'accounts.json'
 
@@ -43,24 +41,29 @@ class MainApp(QMainWindow):
                            "QMessageBox { background-color: #1e1e1e; color: #00ff00; }")
 
     def create_main_menu(self):
-        self.main_menu_widget = QtWidgets.QWidget()
-        self.main_menu_layout = QVBoxLayout(self.main_menu_widget)
+        menu_bar = self.menuBar()
 
-        accounts_button = QPushButton('Управление аккаунтами')
-        accounts_button.clicked.connect(self.show_accounts_page)
-        self.main_menu_layout.addWidget(accounts_button)
+        accounts_menu = QMenu("Аккаунты", self)
+        actions_menu = QMenu("Действия", self)
+        purchase_menu = QMenu("Покупка аккаунтов", self)
 
-        actions_button = QPushButton('Действия')
-        actions_button.clicked.connect(self.show_actions_page)
-        self.main_menu_layout.addWidget(actions_button)
+        menu_bar.addMenu(accounts_menu)
+        menu_bar.addMenu(actions_menu)
+        menu_bar.addMenu(purchase_menu)
 
-        purchase_button = QPushButton('Покупка аккаунтов')
-        purchase_button.clicked.connect(self.show_purchase_page)
-        self.main_menu_layout.addWidget(purchase_button)
+        accounts_action = QAction("Управление аккаунтами", self)
+        accounts_action.triggered.connect(self.show_accounts_page)
+        accounts_menu.addAction(accounts_action)
 
-        self.stacked_widget.addWidget(self.main_menu_widget)
-        self.show_main_menu()
+        actions_action = QAction("Действия", self)
+        actions_action.triggered.connect(self.show_actions_page)
+        actions_menu.addAction(actions_action)
 
+        purchase_action = QAction("Покупка аккаунтов", self)
+        purchase_action.triggered.connect(self.show_purchase_page)
+        purchase_menu.addAction(purchase_action)
+        
+  
     def create_accounts_page(self):
         self.accounts_widget = QtWidgets.QWidget()
         self.accounts_layout = QVBoxLayout(self.accounts_widget)
@@ -75,11 +78,15 @@ class MainApp(QMainWindow):
         self.add_button.clicked.connect(self.add_account_dialog)
         self.accounts_layout.addWidget(self.add_button)
 
-        back_button = QPushButton('Назад в меню')
-        back_button.clicked.connect(self.show_main_menu)
-        self.accounts_layout.addWidget(back_button)
+        
+        
+    
+        
 
         self.stacked_widget.addWidget(self.accounts_widget)
+
+   
+
 
     def create_actions_page(self):
         self.actions_widget = QtWidgets.QWidget()
@@ -92,10 +99,6 @@ class MainApp(QMainWindow):
         self.subscribe_button = QPushButton('Подписаться на канал')
         self.actions_layout.addWidget(self.subscribe_button)
 
-        back_button = QPushButton('Назад в меню')
-        back_button.clicked.connect(self.show_main_menu)
-        self.actions_layout.addWidget(back_button)
-
         self.stacked_widget.addWidget(self.actions_widget)
 
     def create_purchase_page(self):
@@ -106,14 +109,7 @@ class MainApp(QMainWindow):
         self.purchase_info_label.setStyleSheet("color: #00ff00;")
         self.purchase_layout.addWidget(self.purchase_info_label)
 
-        back_button = QPushButton('Назад в меню')
-        back_button.clicked.connect(self.show_main_menu)
-        self.purchase_layout.addWidget(back_button)
-
         self.stacked_widget.addWidget(self.purchase_widget)
-
-    def show_main_menu(self):
-        self.stacked_widget.setCurrentWidget(self.main_menu_widget)
 
     def show_accounts_page(self):
         self.stacked_widget.setCurrentWidget(self.accounts_widget)
