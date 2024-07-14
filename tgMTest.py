@@ -90,6 +90,7 @@ class MainApp(QMainWindow):
         self.actions_layout.addWidget(self.send_message_button)
 
         self.subscribe_button = QPushButton('Подписаться на канал')
+        self.subscribe_button.clicked.connect(self.subscribe_dialog)
         self.actions_layout.addWidget(self.subscribe_button)
 
         back_button = QPushButton('Назад в меню')
@@ -162,6 +163,19 @@ class MainApp(QMainWindow):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             message = dialog.get_message()
             self.send_message(account, message)
+
+    def subscribe_dialog(self):
+        selected_row = self.table.currentRow()
+        if selected_row == -1:
+            return
+
+        account = self.accounts[selected_row]
+        dialog = SubscribeDialog(self, account)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            message = dialog.get_message()
+            self.subscribe(account, message)
+        
+    
 
     def send_message(self, account, message):
         api_id, api_hash, phone_number, proxy = account
@@ -250,6 +264,27 @@ class SendMessageDialog(QDialog):
         layout.addWidget(self.message_input)
 
         self.send_button = QPushButton('Отправить', self)
+        self.send_button.clicked.connect(self.accept)
+        layout.addWidget(self.send_button)
+
+        self.setLayout(layout)
+
+    def get_message(self):
+        return self.message_input.text()
+
+class SubscribeDialog(QDialog):
+    def __init__(self, parent, account):
+        super().__init__(parent)
+
+        self.setWindowTitle('Подписать на канал')
+
+        layout = QVBoxLayout()
+
+        self.message_input = QLineEdit(self)
+        self.message_input.setPlaceholderText('Ссылка на канал')
+        layout.addWidget(self.message_input)
+
+        self.send_button = QPushButton('Подписаться', self)
         self.send_button.clicked.connect(self.accept)
         layout.addWidget(self.send_button)
 
