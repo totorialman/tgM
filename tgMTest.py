@@ -30,7 +30,7 @@ class MainApp(QMainWindow):
         self.create_actions_page()
         self.create_purchase_page()
 
-        self.load_accounts()
+        
         self.update_table()
 
         # Применение "хакерского" стиля
@@ -43,6 +43,7 @@ class MainApp(QMainWindow):
                            "QMessageBox { background-color: #1e1e1e; color: #00ff00; }")
 
     def create_main_menu(self):
+        self.load_accounts()
         self.main_menu_widget = QtWidgets.QWidget()
         self.main_menu_layout = QVBoxLayout(self.main_menu_widget)
 
@@ -98,6 +99,8 @@ class MainApp(QMainWindow):
         self.actions_layout.addWidget(back_button)
 
         self.stacked_widget.addWidget(self.actions_widget)
+
+
 
     def create_purchase_page(self):
         self.purchase_widget = QtWidgets.QWidget()
