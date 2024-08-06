@@ -6,7 +6,8 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidg
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from telethon.sync import TelegramClient
-from telethon.tl.functions.messages import SendMessageRequest      
+from telethon.tl.functions.messages import SendMessageRequest   
+from telethon.tl.functions.channels import JoinChannelRequest   
 import asyncio
 
 # Файл для хранения данных аккаунтов
@@ -220,6 +221,34 @@ class MainApp(QMainWindow):
                 client.disconnect()
 
         send_message_to_user()
+
+    def subscribe_to_channel(account, channel_username):
+        api_id, api_hash, phone_number, proxy = account
+        proxy_parts = proxy.split(':')
+        if len(proxy_parts) == 2:
+            proxy = ('socks5', proxy_parts[0], int(proxy_parts[1]))
+        elif len(proxy_parts) == 4:
+            proxy = ('socks5', proxy_parts[0], int(proxy_parts[1]), proxy_parts[2], proxy_parts[3])
+        else:
+            proxy = None
+        client = TelegramClient(f'session_{phone_number}', api_id, api_hash, proxy=proxy)
+        def join_channel():
+            try:
+                client.connect()
+                if not client.is_user_authorized():
+                    client.send_code_request(phone_number)
+                    client.sign_in(phone_number, input('Введите код: '))
+                    if not client.is_user_authorized():
+                        client.sign_in(password=input('Введите пароль для двухэтапной аутентификации: '))
+
+                    client(JoinChannelRequest(channel_username))
+                    QMessageBox.information(None, "Подписка выполнена", f"Успешная подписка на канал {channel_username}")
+            except Exception as e:
+                QMessageBox.critical(None, "Ошибка", f"Не удалось подписаться на канал: {e}")
+            finally:
+                client.disconnect()
+
+        join_channel()
 
 class AddAccountDialog(QDialog):
     def __init__(self, parent=None):
